@@ -16,16 +16,16 @@ IMG_SHAPE = (IMG_SIZE, IMG_SIZE, 3)
 base_model = keras.applications.InceptionV3(input_shape=IMG_SHAPE, include_top=False, weights='imagenet')
 base_model.summary()
 
-layer_after_mixed9_index = None
+layer_after_mixed7_index = None
 for index, layer in enumerate(base_model.layers):
-    if layer.name == 'mixed9':
-        layer_after_mixed9_index = index + 1
+    if layer.name == 'mixed7':
+        layer_after_mixed7_index = index + 1
         break
 
-for layer in base_model.layers[:layer_after_mixed9_index]:
+for layer in base_model.layers[:layer_after_mixed7_index]:
     layer.trainable = False
 
-for layer in base_model.layers[layer_after_mixed9_index:]:
+for layer in base_model.layers[layer_after_mixed7_index:]:
     layer.trainable = True
 
 global_average_pooling_layer = layers.GlobalAveragePooling2D()
@@ -43,10 +43,10 @@ model.compile(optimizer=keras.optimizers.Adam(lr=0.0001), loss='binary_crossentr
 
 train_datagen = ImageDataGenerator(rescale=1/255,
                                    rotation_range=15,
-                                   width_shift_range=0.2,
-                                   height_shift_range=0.2,
-                                   shear_range=0.2,
-                                   zoom_range=0.2,
+                                   width_shift_range=0.5,
+                                   height_shift_range=0.5,
+                                   shear_range=0.15,
+                                   zoom_range=0.30,
                                    horizontal_flip=True)
 
 validation_datagen = ImageDataGenerator(rescale=1/255)
@@ -58,7 +58,7 @@ train_generator = train_datagen.flow_from_directory(train_dir,
                                                     class_mode='binary',
                                                     target_size=(IMG_SIZE, IMG_SIZE))
 
-validation_generator = validation_datagen.flow_from_directory(train_dir,
+validation_generator = validation_datagen.flow_from_directory(validation_dir,
                                                               batch_size=BATCH_SIZE,
                                                               class_mode='binary',
                                                               target_size=(IMG_SIZE, IMG_SIZE))
